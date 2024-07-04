@@ -23,7 +23,6 @@ class Author(ormar.Model):
 
 
 class Book(ormar.Model):
-
     ormar_config = base_ormar_config.copy(
         tablename="books", order_by=["year", "-ranking"]
     )

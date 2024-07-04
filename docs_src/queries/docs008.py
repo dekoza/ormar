@@ -103,9 +103,11 @@ async def run_query():
     # cannot exclude mandatory model columns -
     # manufacturer__name in this example - note usage of dict/set this time
     try:
-        await Car.objects.select_related("manufacturer").exclude_fields(
-            {"manufacturer": {"name"}}
-        ).all()
+        await (
+            Car.objects.select_related("manufacturer")
+            .exclude_fields({"manufacturer": {"name"}})
+            .all()
+        )
     except ValidationError:
         # will raise pydantic ValidationError as company.name is required
         pass

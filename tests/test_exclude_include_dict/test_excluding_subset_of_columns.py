@@ -161,9 +161,11 @@ async def test_selecting_subset():
 
             with pytest.raises(pydantic.ValidationError):
                 # cannot exclude mandatory model columns - company__name in this example
-                await Car.objects.select_related("manufacturer").exclude_fields(
-                    ["manufacturer__name"]
-                ).all()
+                await (
+                    Car.objects.select_related("manufacturer")
+                    .exclude_fields(["manufacturer__name"])
+                    .all()
+                )
 
 
 @pytest.mark.asyncio

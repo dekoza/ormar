@@ -28,9 +28,9 @@ type_check:
 	mkdir -p .mypy_cache && poetry run python -m mypy ormar tests --ignore-missing-imports --install-types --non-interactive
 
 lint:
-	poetry run python -m ruff . --fix
+	poetry run python -m ruff check . --fix
 
 fmt:
-	poetry run python -m black .
+	poetry run python -m ruff format .
 
 pre-commit: fmt lint type_check

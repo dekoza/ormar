@@ -60,7 +60,6 @@ def test_field_redefining() -> None:
 
 
 def test_field_redefining_in_second() -> None:
-
     class RedefinedField2(ormar.Model, DateFieldsMixins):
         ormar_config = base_ormar_config.copy(tablename="redefines2")
 

@@ -10,7 +10,6 @@ metadata = sqlalchemy.MetaData()
 
 
 class Product(ormar.Model):
-
     ormar_config = ormar.OrmarConfig(
         database=database, metadata=metadata, tablename="product"
     )

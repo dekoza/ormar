@@ -22,7 +22,6 @@ class Artist(ormar.Model):
 
 
 class Album(ormar.Model):
-
     ormar_config = ormar.OrmarConfig(
         database=database,
         metadata=metadata,

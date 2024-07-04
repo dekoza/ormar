@@ -136,7 +136,8 @@ class NewBaseModel(pydantic.BaseModel, ModelTableProxy, metaclass=ModelMetaclass
 
         if not pk_only:
             self.__pydantic_validator__.validate_python(
-                new_kwargs, self_instance=self  # type: ignore
+                new_kwargs,
+                self_instance=self,  # type: ignore
             )
         else:
             fields_set = {self.ormar_config.pkname}

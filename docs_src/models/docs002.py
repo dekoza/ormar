@@ -7,7 +7,6 @@ metadata = sqlalchemy.MetaData()
 
 
 class Course(ormar.Model):
-
     ormar_config = ormar.OrmarConfig(
         database=database,
         metadata=metadata,
