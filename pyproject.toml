@@ -156,10 +156,6 @@ ignore_errors = true
 module = ["sqlalchemy.*", "asyncpg", "nest_asyncio"]
 ignore_missing_imports = true
 
-[tool.yapf]
-based_on_style = "pep8"
-disable_ending_comma_heuristic = true
-split_arguments_when_comma_terminated = true
 
 [tool.ruff]
 select = ["E", "F", "I"]

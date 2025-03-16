@@ -720,12 +720,11 @@ class QuerySet(Generic[T]):
         if func_name in ["sum", "avg"]:
             if any(not x.is_numeric for x in select_actions):
                 raise QueryDefinitionError(
-                    "You can use sum and svg only with" "numeric types of columns"
+                    "You can use 'sum' and 'avg' only with numeric types of columns"
                 )
         select_columns = [x.apply_func(func, use_label=True) for x in select_actions]
         expr = self.build_select_expression().alias(f"subquery_for_{func_name}")
         expr = sqlalchemy.select(select_columns).select_from(expr)
-        # print("\n", expr.compile(compile_kwargs={"literal_binds": True}))
         result = await self.database.fetch_one(expr)
         return dict(result) if len(result) > 1 else result[0]  # type: ignore
 

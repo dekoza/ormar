@@ -28,8 +28,8 @@ logger = logging.getLogger(__name__)
 
 class UniqueList(list):
     """
-    Simple subclass of list that prevents the duplicates
-    Cannot use set as the order is important
+    Simple subclass of list that prevents duplicates.
+    Cannot use set as the order is important.
     """
 
     def append(self, item: Any) -> None:
@@ -39,8 +39,8 @@ class UniqueList(list):
 
 class Node(abc.ABC):
     """
-    Base Node use to build a query tree and divide job into already loaded models
-    and the ones that still need to be fetched from database
+    Base Node used to build a query tree and divide job into already loaded models
+    and the ones that still need to be fetched from database.
     """
 
     def __init__(self, relation_field: "ForeignKeyField", parent: "Node") -> None:
@@ -59,7 +59,7 @@ class Node(abc.ABC):
         """
         Return the name of the relation that is used to
         fetch excludes/includes from the excludable mixin
-        as well as specifying the target to join in m2m relations
+        as well as specifying the target to join in m2m relations.
 
         :return: name of the relation
         :rtype: str
@@ -86,7 +86,7 @@ class Node(abc.ABC):
 
     def get_filter_for_prefetch(self) -> List["FilterAction"]:
         """
-        Populates where clause with condition to return only models within the
+        Populates 'where' clause with condition to return only models within the
         set of extracted ids.
         If there are no ids for relation the empty list is returned.
 
@@ -105,12 +105,12 @@ class Node(abc.ABC):
 
     def _prepare_filter_clauses(self, ids: List) -> List["FilterAction"]:
         """
-        Gets the list of ids and construct a list of filter queries on
-        extracted appropriate column names
+        Gets the list of ids and constructs a list of filter queries on
+        extracted appropriate column names.
 
-        :param ids: list of ids that should be used to fetch data
+        :param ids: list of ids that should be used to fetch the data
         :type ids: List
-        :return: list of filter actions to use in query
+        :return: list of filter actions to use in the query
         :rtype: List["FilterAction"]
         """
         clause_target = self.relation_field.get_filter_clause_target()
@@ -127,7 +127,7 @@ class Node(abc.ABC):
 
 class AlreadyLoadedNode(Node):
     """
-    Node that was already loaded in select statement
+    Node that was already loaded in the 'select' statement.
     """
 
     def __init__(self, relation_field: "ForeignKeyField", parent: "Node") -> None:
@@ -137,7 +137,7 @@ class AlreadyLoadedNode(Node):
 
     def _extract_own_models(self) -> None:
         """
-        Extract own models that were already fetched and attached to root node
+        Extract own models that were already fetched and attached to the root node.
         """
         for model in self.parent.models:
             child_models = getattr(model, self.relation_field.name)
@@ -148,15 +148,15 @@ class AlreadyLoadedNode(Node):
 
     async def load_data(self) -> None:
         """
-        Triggers a data load in the child nodes
+        Triggers a data load in the child nodes.
         """
         for child in self.children:
             await child.load_data()
 
     def reload_tree(self) -> None:
         """
-        After data was loaded we reload whole tree from the bottom
-        to include freshly loaded nodes
+        After data was loaded we reload the whole tree from the bottom
+        to include freshly loaded nodes.
         """
         for child in self.children:
             child.reload_tree()
@@ -168,7 +168,7 @@ class AlreadyLoadedNode(Node):
 
         :param column_name: names of the column(s) that holds the relation info
         :type column_name: Union[str, List[str]]
-        :return: List of extracted values of relation columns
+        :return: List of extracted values of the relation columns
         :rtype: List
         """
         list_of_ids = UniqueList()
@@ -183,7 +183,7 @@ class AlreadyLoadedNode(Node):
 
 class RootNode(AlreadyLoadedNode):
     """
-    Root model Node from which both main and prefetch query originated
+    Root Node model from which both main and prefetch query originated.
     """
 
     def __init__(self, models: List["Model"]) -> None:
@@ -198,7 +198,7 @@ class RootNode(AlreadyLoadedNode):
 
 class LoadNode(Node):
     """
-    Nodes that actually need to be fetched from database in the prefetch query
+    Nodes that actually need to be fetched from the database in the prefetch query.
     """
 
     def __init__(
@@ -219,12 +219,12 @@ class LoadNode(Node):
 
     async def load_data(self) -> None:
         """
-        Ensures that at least primary key columns from current model are included in
-        the query.
+        Ensures that at least primary key columns from the current model are included
+        in the query.
 
         Gets the filter values from the parent model and runs the query.
 
-        Triggers a data load in child tasks.
+        Triggers a data load in the child tasks.
         """
         self._update_excludable_with_related_pks()
         if self.relation_field.is_multi:
@@ -263,7 +263,7 @@ class LoadNode(Node):
     def _update_excludable_with_related_pks(self) -> None:
         """
         Makes sure that excludable is populated with own model primary keys values
-        if the excludable has the exclude/include clauses
+        if the excludable has the exclude/include clauses.
         """
         related_field_names = self.relation_field.get_related_field_name()
         alias_manager = self.relation_field.to.ormar_config.alias_manager
@@ -301,11 +301,11 @@ class LoadNode(Node):
     def _extract_own_order_bys(self) -> List["OrderAction"]:
         """
         Extracts list of order actions related to current model.
-        Since same model can happen multiple times in a tree we check not only the
+        Since the same model can exist multiple times in a tree we check not only the
         match on given model but also that path from relation tree matches the
         path in order action.
 
-        :return: list of order actions related to current model
+        :return: list of order actions related to the current model
         :rtype: List[OrderAction]
         """
         own_order_bys = []
@@ -322,9 +322,9 @@ class LoadNode(Node):
 
     def _get_full_tree_path(self) -> str:
         """
-        Iterates the nodes to extract path from root node.
+        Iterates the nodes to extract path from the root node.
 
-        :return: path from root node
+        :return: path from the root node
         :rtype: str
         """
         node: Node = self
@@ -337,7 +337,7 @@ class LoadNode(Node):
     def extract_related_ids(self, column_name: str) -> List:
         """
         Extracts the selected column(s) values from own models.
-        Those values are used to construct filter clauses and populate child models.
+        Those values are used to construct the 'filter' clauses and populate child models.
 
         :param column_names: names of the column(s) that holds the relation info
         :type column_names: Union[str, List[str]]
@@ -369,10 +369,10 @@ class LoadNode(Node):
 
     def reload_tree(self) -> None:
         """
-        Instantiates models from loaded database rows.
+        Instantiates models from the loaded database rows.
         Groups those instances by relation key for easy extract per parent.
         Triggers same for child nodes and then populates
-        the parent node with own related models
+        the parent node with own related models.
         """
         if self.rows:
             self._instantiate_models()
@@ -383,11 +383,11 @@ class LoadNode(Node):
 
     def _instantiate_models(self) -> None:
         """
-        Iterates the rows and initializes instances of ormar.Models.
-        Each model is instantiated only once (they can be duplicates for m2m relation
-        when multiple parent models refer to same child model since the query have to
+        Iterates the rows and initializes the instances of ormar.Model.
+        Each model is instantiated only once (they can be duplicated for m2m relation
+        when multiple parent models refer to same child model since the query has to
         also include the through model - hence full rows are unique, but related
-        models without through models can be not unique).
+        models without through models can not be unique).
         """
         fields_to_exclude = self.relation_field.to.get_names_to_exclude(
             excludable=self.excludable, alias=self.exclude_prefix
@@ -409,8 +409,8 @@ class LoadNode(Node):
 
     def _hash_item(self, item: Dict) -> Tuple:
         """
-        Converts model dictionary into tuple to make it hashable and allow to use it
-        as a dictionary key - used to ensure unique instances of related models.
+        Converts the model dictionary into a tuple to make it hashable and allow to use
+        it as a dictionary key - used to ensure unique instances of related models.
 
         :param item: instance dictionary
         :type item: Dict
@@ -428,7 +428,7 @@ class LoadNode(Node):
         """
         Groups own models by relation keys so it's easy later to extract those models
         when iterating parent models. Note that order is important as it reflects
-        order by issued by the user.
+        order_by issued by the user.
         """
         relation_key = self.relation_field.get_related_field_alias()
         for index, row in enumerate(self.rows):
@@ -438,7 +438,7 @@ class LoadNode(Node):
 
     def _populate_parent_models(self) -> None:
         """
-        Populate parent node models with own child models from grouped dictionary
+        Populate the parent node models with own child models from grouped dictionary.
         """
         relation_key = self._get_relation_key_linking_models()
         for model in self.parent.models:
@@ -450,8 +450,8 @@ class LoadNode(Node):
 
     def _get_relation_key_linking_models(self) -> Tuple[str, str]:
         """
-        Extract names and aliases of relation columns to use
-        in linking between own models and parent models
+        Extract the names and aliases of relation columns to be used
+        in linking between own models and parent models.
 
         :return: tuple of name and alias of relation columns
         :rtype: List[Tuple[str, str]]
@@ -483,9 +483,10 @@ class LoadNode(Node):
 
 class PrefetchQuery:
     """
-    Query used to fetch related models in subsequent queries.
-    Each model is fetched only ones by the name of the relation.
-    That means that for each prefetch_related entry next query is issued to database.
+    Query used to fetch the related models in subsequent queries.
+    Each model is fetched only once by the name of the relation.
+    That means that for each prefetch_related entry the next query is issued
+    to the database.
     """
 
     def __init__(  # noqa: CFQ002
@@ -508,10 +509,10 @@ class PrefetchQuery:
         Main entry point for prefetch_query.
 
         Receives list of already initialized parent models with all children from
-        select_related already populated. Receives also list of row sql result rows
+        select_related already populated. Also receives a list of raw sql result rows
         as it's quicker to extract ids that way instead of calling each model.
 
-        Returns list with related models already prefetched and set.
+        Returns a list with related models already prefetched and set.
 
         :param models: list of already instantiated models from main query
         :type models: Sequence[Model]
@@ -542,7 +543,7 @@ class PrefetchQuery:
         Build a tree of already loaded nodes and nodes that need
         to be loaded through the prefetch query.
 
-        :param select_dict: dictionary wth select query structure
+        :param select_dict: dictionary with select query structure
         :type select_dict: Dict
         :param prefetch_dict: dictionary with prefetch query structure
         :type prefetch_dict: Dict
